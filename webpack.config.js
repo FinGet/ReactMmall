@@ -11,7 +11,16 @@ module.exports = {
     filename: 'js/app.js'
   },
   devServer: {
-  	port: 8088
+  	port: 8088,
+    historyApiFallback:{
+      index: '/dist/index.html'
+    }
+  },
+  resolve:{
+    alias:{
+      page : path.resolve(__dirname, 'src/page'),
+      component : path.resolve(__dirname, 'src/component')
+    }
   },
   module: {
   	rules: [
@@ -67,7 +76,8 @@ module.exports = {
   },
   plugins: [
   	new HtmlWebpackPlugin({
-  		template: './src/index.html'  // 自定义模板文件
+  		template: './src/index.html',  // 自定义模板文件
+      favicon: './favicon.ico'
   	}),
   	// 独立css文件
   	new ExtractTextPlugin("css/[name].css"),
