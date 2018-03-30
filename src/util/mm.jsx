@@ -60,6 +60,14 @@ class MUtil{
 		alert(errMsg || '好像哪里不对了~');
 	}
 	/**
+	 * 成功提示
+	 * @param  {[type]} successMsg [description]
+	 * @return {[type]}        [description]
+	 */
+	successTips(successMsg) {
+		alert(successMsg || '操作成功~');
+	}
+	/**
 	 * 本地存储
 	 * @param {[type]} name [description]
 	 * @param {[type]} data [description]
