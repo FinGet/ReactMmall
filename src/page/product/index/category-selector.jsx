@@ -21,6 +21,33 @@ class CategorySelector extends React.Component{
 	componentDidMount(){
 		this.loadFirstCategory();
 	}
+	componentWillReceiveProps(nextProps){
+		console.log(this.props.categoryId,this.props.parentCategoryId);
+    let categoryIdChange        = this.props.categoryId !== nextProps.categoryId,
+      parentCategoryIdChange  = this.props.parentCategoryId !== nextProps.parentCategoryId;
+
+     // console.log(this.props.categoryId)
+    // 数据没有发生变化的时候，直接不做处理
+    if(!categoryIdChange && !parentCategoryIdChange){
+      return;
+    }
+    // 假如只有一级品类
+    if(nextProps.parentCategoryId === 0){
+      this.setState({
+        firstCategoryId     : nextProps.categoryId,
+        secondCategoryId    : 0
+      });
+    }
+    // 有两级品类
+    else{
+      this.setState({
+        firstCategoryId     : nextProps.parentCategoryId,
+        secondCategoryId    : nextProps.categoryId
+      }, () => {
+        parentCategoryIdChange && this.loadSecondCategory();
+      });
+    }   
+  }
 	/**
 	 * 加载一级分类
 	 * @return {[array]}
@@ -28,7 +55,7 @@ class CategorySelector extends React.Component{
 	loadFirstCategory(){
 		_product.getCategoryList().then(res => {
 			this.setState({
-				firstCategoryList : res.slice(0,20) // 数量太多截取20条
+				firstCategoryList : res 
 			})
 			// console.log(this.state.firstCategoryList);
 		}).catch(errMsg => {
@@ -43,7 +70,7 @@ class CategorySelector extends React.Component{
 	loadSecondCategory(categoryId){
 		_product.getCategoryList(categoryId).then(res => {
 			this.setState({
-				secondCategoryList : res.slice(0,20) // 数量太多截取20条
+				secondCategoryList : res 
 			})
 		// console.log(this.state.firstCategoryList);
 		}).catch(errMsg => {
@@ -55,6 +82,9 @@ class CategorySelector extends React.Component{
 	 * @return {[type]}
 	 */
 	onFirstCategoryChange(e){
+		if(this.props.readOnly){
+      return;
+    }
 		let newValue = e.target.value || 0;
 		// 在选择一级分类的时候，二级分类可能已经有值，所以先清空
 		this.setState ({
@@ -71,6 +101,9 @@ class CategorySelector extends React.Component{
 	 * @return {[type]}
 	 */
 	onSecondCategoryChange(e){
+		if(this.props.readOnly){
+      return;
+    }
 		let newValue = e.target.value || 0;
 		// 在选择一级分类的时候，二级分类可能已经有值，所以先清空
 		this.setState ({
@@ -95,7 +128,9 @@ class CategorySelector extends React.Component{
 		return (
 			<div className="col-md-10">
 				<select name="" className="form-control cate-select"
+					value={this.state.firstCategoryId}
 					onChange={(e) => this.onFirstCategoryChange(e)}
+					readOnly={this.props.readOnly}
 				>
 					<option value="">请选择一级分类</option>
 					{
@@ -106,6 +141,8 @@ class CategorySelector extends React.Component{
 				</select>
 				{this.state.secondCategoryList.length>0 ?
 					<select name="" className="form-control cate-select"
+					value={this.state.secondCategoryId}
+					readOnly={this.props.readOnly}
 						onChange={(e) => this.onSecondCategoryChange(e)}
 					>
 					<option value="">请选择二级分类</option>

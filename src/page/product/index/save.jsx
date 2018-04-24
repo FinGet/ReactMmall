@@ -29,6 +29,31 @@ class ProductSave extends React.Component{
       status              : 1 //商品状态1为在售
     }
   }
+  componentDidMount(){
+    this.loadProduct();
+  }
+  /**
+   * 加载商品详情
+   * @return {[type]} [description]
+   */
+  loadProduct(){
+    // 有id的时候，表示是编辑功能，需要表单回填
+    if(this.state.id){
+      _product.getProduct(this.state.id).then((res) => {
+        let images = res.subImages.split(',');
+        res.subImages = images.map((imgUri) => {
+          return {
+            uri: imgUri,
+            url: res.imageHost + imgUri
+          }
+        });
+        res.defaultDetail = res.detail;
+        this.setState(res);
+      }, (errMsg) => {
+        _mm.errorTips(errMsg);
+      });
+    }
+  }
   /**
    * 输入框输入
    * @param  {[type]}
@@ -92,7 +117,7 @@ class ProductSave extends React.Component{
 	 * @return {[type]}
 	 */
 	onDetailValueChange(value){
-		console.log(value);
+		// console.log(value);
 		this.setState({
 			detail : value
 		})
@@ -118,7 +143,19 @@ class ProductSave extends React.Component{
       price       : parseFloat(this.state.price),
       stock       : parseInt(this.state.stock),
       status      : this.state.status
-		}
+		};
+    let productCheckResult = _product.checkProduct(product);
+    // 表单验证成功
+    if(productCheckResult.status) {
+      _product.saveProduct(product).then( res => {
+        _mm.successTips(res);
+        this.props.history.push('/product/index');
+      }).catch(errMsg => {
+        _mm.errorTips(errMsg);
+      })
+    } else {
+      _mm.errorTips(productCheckResult.msg);
+    }
 	}
 	render(){
 		return (
@@ -147,7 +184,7 @@ class ProductSave extends React.Component{
           </div>
             <div className="form-group">
                 <label className="col-md-2 control-label">所属分类</label>
-          
+                
                 <CategorySelector 
                     categoryId={this.state.categoryId}
                     parentCategoryId={this.state.parentCategoryId}
